@@ -1,17 +1,24 @@
+# imports
+
 import discord
 from discord.ext import commands
+from pornhub_api import PornhubApi
 from discord.utils import get
 import json
 import asyncio
 import shutil
+import requests
 import os
 import random
 import time
 import re
 
 
+# prefix
 
 client = commands.Bot(command_prefix = ",,")
+
+# cogs for 8ball
 
 @client.command()
 async def load(ctx, extension):
@@ -25,14 +32,17 @@ for filename in os.listdir('./cogs'):
 	if filename.endswith('.py'):
 		client.load_extension(f'cogs.{filename[:-3]}')
 
+#basic bot stuff and clear stuff too
+
 @client.event
 async def on_ready():
 	print('Bot is ready.')
 
 @client.event
-async def on_guild_join(message):
-	await message.channel.send("Hey! thanks for choosing the matrix as your discord bot. my prefix is ',,' but there is currently no way to change it. but dont worry! my owner will fix it sooner or later. ")
-
+async def on_guild_join(guild):
+	general = find(lambda x: x.name == 'general',  guild.text_channels)
+	if general and general.permissions_for(guild.me).send_messages:
+		await general.send("Hello! I'm The Matrix Discord bot. my prefix is ',,', but you can't change it lmao. you may find i have created a role called 'Muted' and that is because i rely on that to mute people. you can however edit the role to your specifications and i will still mute people, as long as the name isnt changed. lmao enjoy ")
 
 @client.event
 async def on_member_join(member, ctx):
@@ -51,6 +61,8 @@ async def clear(ctx, amount=5):
 @client.event
 async def on_member_join(member):
 	await member.send("Hey, Thanks for joining!")
+
+# moderation
 
 @client.event
 async def on_message(message):
@@ -90,6 +102,8 @@ async def on_message(message):
 	if "creeper" in message.content.lower():
 		await message.channel.send("awwww man!")
 	await client.process_commands(message)
+
+#lists (dont delete as they make the random commnnds work)
 
 coinflip = [
 			'Heads!',
@@ -148,19 +162,34 @@ lennyfaces = [
 			  "(ง ͡ʘ ͜ʖ ͡ʘ)ง",
 ]
 
-@client.command()
-@commands.has_permissions(kick_members=True)
-async def kick(ctx, member : discord.Member, *, reason=None):
-	await member.kick(reason=reason)
-	time.sleep(0.5)
-	await ctx.send('Kicked.')
+#banning and stuff
 
 @client.command()
-@commands.has_permissions(ban_members=True)
-async def ban(ctx, member : discord.Member, *, reason=None):
-	await member.ban(reason=reason)
-	time.sleep(0.5)
-	await ctx.send("Banned.")
+@commands.has_permissions(kick_members = True)
+async def kick(ctx, member: discord.Member , *, reason=None):
+	await ctx.send(f"{member.mention} has been kicked from {ctx.guild.name}. ")
+	if reason is None:
+		reason = f"Kicked by {ctx.author.name}"
+
+	#remove the "#" below if you also want to dm the user who is kicked
+	await member.send(f"You Have Been Kicked from {ctx.guild.name} . Reason = {reason}")
+
+	#if no reason is provided then the reason will be kicked by <name of the person who kicked>
+	await member.kick(reason = reason)
+
+@client.command()
+@commands.has_permissions(ban_members = True)
+async def ban(ctx, member: discord.Member, *, reason=None):
+	await ctx.send(f"{member.mention} has been banned from {ctx.guild.name}")
+	if reason is None:
+		reason = f"Banned by {ctx.author.name}"
+
+
+	#remove the "#" below if you also want to dm the user that he is banned from the server
+	await member.send(f"You Have Been Banned from {ctx.guild.name}. Reason: {reason}")
+
+	#if no reason is provided then the reason will be banned by <the person who bans>
+	await member.ban(reason = reason)
 
 @client.command()
 @commands.has_permissions(ban_members=True)
@@ -207,6 +236,8 @@ async def mute(ctx, member : discord.Member):
 			await member.add_roles(newRole)
 			await ctx.send("{} has been muted by {} lol" .format(member.mention,ctx.author.mention))
 
+#fun commands
+
 @client.command()
 async def lenny(ctx):
 	selectedlenny = random.choice(lennyfaces)
@@ -238,8 +269,8 @@ async def flipacoin(ctx):
 	await ctx.send(f"{selectedflip}")
 
 @client.command()
-async def ninjapacifiers(ctx):
-	await ctx.send("https://www.youtube.com/watch?v=evOVWKveVPA")
+async def ninjapacifiers(message):
+	await message.channel.send('lmao', file=discord.File('ninjawhat.mp4'))
 
 @client.command()
 async def ping(ctx):
@@ -258,10 +289,56 @@ async def youthoughtbitch(ctx):
 	monku = client.get_guild(756948292918706248)
 	await monku.leave()
 
+@client.command()
+async def usedtobe(message, playertocheck):
+	data = requests.get(f"https://api.hypixel.net/player?key=no&name={playertocheck}").json()
+	knownaliases = data["player"]["knownAliases"]
+	embedVar = discord.Embed(title=f"{playertocheck}'s aliases", description=f"{knownaliases}", color=660066)
+	await message.channel.send(embed=embedVar)
+
+@client.command()
+async def skywars(message, playertocheck):
+	data = requests.get(f"https://api.hypixel.net/player?key=no&name={playertocheck}").json()
+	coins = data["player"]["stats"]["SkyWars"]["coins"]
+	wins = data["player"]["stats"]["SkyWars"]["wins"]
+	kills = data["player"]["stats"]["SkyWars"]["kills"]
+	losses = data["player"]["stats"]["SkyWars"]["losses"]
+	level = data["player"]["stats"]["SkyWars"]["levelFormatted"]
+	embedVar = discord.Embed(title=f"{playertocheck}'s skywars stats.", description="here you go", color=660066)
+	embedVar.add_field(name="coins", value=f"{coins}", inline=False)
+	embedVar.add_field(name="wins", value=f"{wins}", inline=False)
+	embedVar.add_field(name="kills", value=f"{kills}", inline=False)
+	embedVar.add_field(name="losses", value=f"{losses}", inline=False)
+	embedVar.add_field(name="level", value=f"{level}", inline=False)
+	await message.channel.send(embed=embedVar)
+
+@client.command()
+async def rank(message, playertocheck):
+	data = requests.get(f"https://api.hypixel.net/player?key=no&name={playertocheck}").json()
+	rank = data["player"]["rank"]
+	embedVar = discord.Embed(title=f"{playertocheck}'s rank", description=f"{rank}", color=660066)
+	await message.channel.send(embed=embedVar)
+
+
+@client.command()
+@commands.is_nsfw()
+async def search(ctx, term):
+	api = PornhubApi()
+	data = api.search.search(
+		(term),
+	)
+	for vid in data.videos:
+		await ctx.send(vid.title)
+
+@clear.error
+async def clear_error(message, error):
+  if isinstance(error, commands.NSFWChannelRequired):
+	  embedVar = discord.Embed(title="man u a dumbass", description="headass that was a nsfw command use it in a nsfw channel retard", color=660066)
+	  await message.channel.send(embed=embedVar)
 
 
 
 
 
 
-client.run('nice try dumbass')
+client.run('no')
