@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="/resources/images/matrixdevelopmenticon.ico">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+
+    <title> sPoNgEbOb mEmE GeNeRaToR </title>
+    <link rel="stylesheet" type="text/css" href="/css/basscss.min.css">
+    <script type="text/javascript" src="/js/jquery/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="/templates/templates.js"></script>
+    <script type="text/javascript" src="/templates/ga.js"></script>
+    <script src="https://use.fontawesome.com/83536f4ef8.js"></script>
+
+
+
+    <style>
+    .btnz {
+        display: block;
+        float: left;
+        padding: 10px 15px;
+        border:none;
+        background-color: #ececec;
+        text-decoration: none;
+        font-size: 18px;
+        color: #FFF;
+      }
+      .btnz:hover {
+        color: #efefef;
+      }
+      .twitter {
+        background-color: #55acee;
+      }
+    </style>
+    <style type="text/css">
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        </style>
+        <img src="/resources/images/spongebob.png" style="width: 30vw; min-width: 30px;" />
+  </head>
+  <body bgcolor="000000">
+    <div id="navHeader"></div>
+
+    <section class="container px1 py1">
+      <div>
+        <h1 style="color: rgb(255, 255, 255);">spongebob time</h1>
+        <br>
+        <input id="inputText" name="inputText" type="text" size="48" value="" placeholder="insert text here"/>
+      </div>
+      <br>
+      <button id="submitButton" class="button rounded" onclick="generateSpongebobText()">gEnErAtE SpOnGeBoB TeXt!</button></p>
+    </br>
+      <div>
+        <input id="outputText" name="outputText" size="48" onclick="select()" type="text" value="" placeholder="gEnErAtEd tExT HeRe" />
+        <br>
+        <br>
+      </div>
+    </section>
+    </br>
+    </br>
+    </br>
+    </br>
+    <div id="navFooter"></div>
+    <script type="text/javascript">
+
+      function generateSpongebobText () {
+        var input = document.getElementById('inputText').value;
+        var res = "";
+        for (i=0; i < input.length; i++) {
+           res += i % 2 == 0 ? input.charAt(i).toLowerCase() : input.charAt(i).toUpperCase();
+        }
+        document.getElementById('outputText').value = res;
+        $( "#image" ).show();
+      }
+
+      $("#inputText").keyup(function(event) {
+        if (event.keyCode === 13) {
+          generateSpongebobText();
+        }
+      });
+
+      $("#inputText").onchange(function(event) {
+        generateSpongebobText();
+      });
+    </script>
+    <div class="col col-6 sm-col-4 md-col-3 lg-col-2 px2 mb3">
+        <a href="/JakeWeb.html" class="block">				
+            <img src="/resources/images/MatrixDevelopment.jpg" style="width: 5vw; min-width: 10px;" class="block" alt="mainpage"/>
+        </a>
+        <header style="color: rgb(255, 255, 255);">click the logo to go back to the main page!</header>
+      </div>
+  </body>
+</html>
